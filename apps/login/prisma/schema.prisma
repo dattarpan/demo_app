@@ -1,0 +1,38 @@
+datasource mongo {
+  provider = "mongodb"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  blockedChannels    Channel[] @relation(name: "blockedBy", fields: [blockedChannelsIds], references: [id])
+  blockedChannelsIds String[]  @mongo.ObjectId
+  channels           Channel[] @relation(name: "channels", fields: [channelsIds], references: [id])
+  channelsIds        String[]  @mongo.ObjectId
+  createdAt          DateTime  @default(now())
+  firstName          String?
+  id                 String    @id @default(auto()) @map("_id") @mongo.ObjectId
+  lastName           String?
+  password           String
+  roles              Json
+  updatedAt          DateTime  @updatedAt
+  username           String    @unique
+}
+
+model Channel {
+  blockedBy         User[]   @relation(name: "blockedBy", fields: [blockedByIds], references: [id])
+  blockedByIds      String[] @mongo.ObjectId
+  createdAt         DateTime @default(now())
+  id                String   @id @default(auto()) @map("_id") @mongo.ObjectId
+  name              String
+  participant       User[]   @relation(name: "channels", fields: [participantIds], references: [id])
+  participantIds    String[] @mongo.ObjectId
+  totalFileCount    Int?
+  totalImageCount   Int?
+  totalLinkCount    Int?
+  totalMessageCount Int?
+  updatedAt         DateTime @updatedAt
+}
